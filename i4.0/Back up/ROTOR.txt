@@ -1,0 +1,745 @@
+import React, { Component } from "react";
+import { key, server } from "../../constants";
+import { httpClient } from "../../utils/HttpClient";
+import Chart from "react-apexcharts";
+import moment from "moment";
+import Select from "react-select";
+
+class ROTOR extends Component {
+  constructor(props) {
+    super(props);
+
+    //set state
+    this.state = {
+      //for graph
+      data: [],
+      xAxis: [],
+      yAxis: [],
+      yAxisUCL: [],
+      yAxisLCL: [],
+      yAxisCL: [],
+      title: [],
+      titleday: [],
+
+      dataday: [],
+      xAxisday: [],
+      yAxisday: [],
+      yAxisUCLday: [],
+      yAxisLCLday: [],
+      yAxisCLday: [],
+
+      model: [],
+      productionline: [],
+      parameter: [],
+      machine: [],
+
+      selectDate: moment().format("yyyy-MM-DD"),
+      startDate: moment().add("days", -30).format("yyyy-MM-DD"),
+      finishDate: moment().format("yyyy-MM-DD"),
+
+      //
+      listModel: [],
+      listParameter: [],
+      listProductionline: [],
+      listMachine: [],
+    };
+  }
+
+  componentDidMount = async () => {
+    await this.getModel();
+    await this.getParameter();
+    await this.getProductionline();
+    await this.getMachine();
+
+    let result = await httpClient.get(
+      server.MATCHING_URL +
+        "/" +
+        this.state.selectDate +
+        "/" +
+        this.state.model +
+        "/" +
+        this.state.parameter +
+        "/" +
+        this.state.productionline +
+        "/" +
+        this.state.machine
+    );
+
+    let resultday = await httpClient.get(
+      server.MATCHINGDAY_URL +
+        "/" +
+        this.state.startDate +
+        "/" +
+        this.state.finishDate +
+        "/" +
+        this.state.model +
+        "/" +
+        this.state.parameter +
+        "/" +
+        //+ this.state.part + "/"
+        this.state.productionline +
+        "/" +
+        this.state.machine
+    );
+
+    console.log(result.data.result);
+    let xAxis = [];
+    // let yAxis = [];
+    let yAxisUCL = [];
+    let yAxisLCL = [];
+    let yAxisCL = [];
+    let yAxis = result.data.seriesY.data;
+
+    let xAxisday = [];
+    //let yAxis = [];
+    let yAxisUCLday = [];
+    let yAxisLCLday = [];
+    let yAxisCLday = [];
+    let yAxisday = resultday.data.seriesY.data;
+
+    for (let index = 0; index < result.data.result.length; index++) {
+      const item = result.data.result[index];
+      await xAxis.push(item.Time);
+      //await yAxis.push(item["Axial_Play"]);
+      await yAxisUCL.push(item.UCL);
+      await yAxisLCL.push(item.LCL);
+      await yAxisCL.push(item.CL);
+    }
+
+    for (let index = 0; index < resultday.data.result.length; index++) {
+      const item = resultday.data.result[index];
+      await xAxisday.push(item.Date);
+      //await yAxis.push(item["Axial_Play"]);
+      await yAxisUCLday.push(item.UCL);
+      await yAxisLCLday.push(item.LCL);
+      await yAxisCLday.push(item.CL);
+    }
+
+    this.setState({
+      data: result.data.result,
+      xAxis,
+      yAxis,
+      yAxisCL,
+      yAxisLCL,
+      yAxisUCL,
+    });
+
+    this.setState({
+      dataday: resultday.data.result,
+      xAxisday,
+      yAxisday,
+      yAxisCLday,
+      yAxisLCLday,
+      yAxisUCLday,
+    });
+  };
+
+  doGetData = async () => {
+    let result = await httpClient.get(
+      server.MATCHING_URL +
+        "/" +
+        this.state.selectDate +
+        "/" +
+        this.state.model +
+        "/" +
+        this.state.parameter +
+        "/" +
+        this.state.productionline +
+        "/" +
+        this.state.machine
+    );
+
+    let xAxis = [];
+    //let yAxis = [];
+    let yAxisUCL = [];
+    let yAxisLCL = [];
+    let yAxisCL = [];
+    let yAxis = result.data.seriesY.data;
+    let title = result.data.seriesY.name;
+
+    for (let index = 0; index < result.data.result.length; index++) {
+      const item = result.data.result[index];
+      await xAxis.push(item.Time);
+      //await yAxis.push(item["Axial_Play"]);
+      await yAxisUCL.push(item.UCL);
+      await yAxisLCL.push(item.LCL);
+      await yAxisCL.push(item.CL);
+    }
+
+    this.setState({
+      data: result.data.result,
+      xAxis,
+      yAxis,
+      yAxisCL,
+      yAxisLCL,
+      yAxisUCL,
+      title,
+    });
+
+    // doGetDataperday
+    let resultday = await httpClient.get(
+      server.MATCHINGDAY_URL +
+        "/" +
+        this.state.startDate +
+        "/" +
+        this.state.finishDate +
+        "/" +
+        this.state.model +
+        "/" +
+        this.state.parameter +
+        "/" +
+        //+ this.state.part + "/"
+        this.state.productionline +
+        "/" +
+        this.state.machine
+    );
+
+    let xAxisday = [];
+    //let yAxis = [];
+    let yAxisUCLday = [];
+    let yAxisLCLday = [];
+    let yAxisCLday = [];
+    let yAxisday = resultday.data.seriesY.data;
+    let titleday = resultday.data.seriesY.name;
+
+    console.log(resultday.data.seriesY);
+
+    for (let index = 0; index < resultday.data.result.length; index++) {
+      const item = resultday.data.result[index];
+      await xAxisday.push(item.Date);
+      //await yAxis.push(item["Axial_Play"]);
+      await yAxisUCLday.push(item.UCL);
+      await yAxisLCLday.push(item.LCL);
+      await yAxisCLday.push(item.CL);
+    }
+
+    this.setState({
+      dataday: resultday.data.result,
+      xAxisday,
+      yAxisday,
+      yAxisCLday,
+      yAxisLCLday,
+      yAxisUCLday,
+      titleday,
+    });
+  };
+
+  getModel = async () => {
+    const array = await httpClient.get(server.MATCHMODEL_URL);
+    console.log(array.data.result);
+    const options = array.data.result.map((d) => ({
+      label: d.Model,
+    }));
+    this.setState({ listModel: options });
+  };
+
+  getParameter = async () => {
+    const array = await httpClient.get(server.MATCHPARAM_URL);
+    console.log(array.data.result);
+    const options = array.data.result.map((d) => ({
+      label: d.Parameter,
+    }));
+    this.setState({ listParameter: options });
+  };
+
+  getProductionline = async () => {
+    const array = await httpClient.get(
+      server.MATCHLINE_URL + "/" + this.state.model
+    );
+    console.log(array.data.result);
+    const options = array.data.result.map((d) => ({
+      label: d.Line,
+    }));
+    this.setState({ listProductionline: options });
+  };
+
+  getMachine = async () => {
+    const array = await httpClient.get(
+      server.MATCHMACHINE_URL +
+        "/" +
+        this.state.parameter +
+        "/" +
+        this.state.productionline
+    );
+    console.log(array.data.result);
+
+    const options = array.data.result.map((d) => ({
+      label: d.MCname,
+    }));
+    this.setState({ listMachine: options });
+  };
+
+  resetForm = () => {
+    this.setState({
+      selectDate: "",
+      model: "",
+      productionline: "",
+      parameter: "",
+      machine: "",
+    });
+  };
+
+  renderTableRow = () => {
+    return this.state.data.map((item) => (
+      <tr>
+        <td>{item.Time}</td>
+        <td>{item["Cycle_time (sec)"]}</td>
+        <td>{item["Down time (min)"]}</td>
+        <td>{item["STD"]}</td>
+        <td>{item["CPK"]}</td>
+      </tr>
+    ));
+  };
+
+  renderTableRowday = () => {
+    return this.state.dataday.map((item) => (
+      <tr>
+        <td>{item.Date}</td>
+        <td>{item["Cycle_time (sec)"]}</td>
+        <td>{item["Down time (min)"]}</td>
+        <td>{item["STD"]}</td>
+        <td>{item["CPK"]}</td>
+      </tr>
+    ));
+  };
+  render() {
+    // console.log(this.state.model);
+    // console.log(this.state.productionline);
+    // console.log(this.state.selectDate);
+    // console.log(this.state.parameter);
+    // console.log(this.state.listModel);
+    // console.log(this.state.listParameter);
+
+    return (
+      <div class="content-wrapper">
+        <div className="content" style={{ paddingTop: 100 }}>
+          <div className="content-header">
+            <div class="container-fluid">
+              <div class="row mb-2">
+                <div class="col-sm-6">
+                  <h1 className="brand-text font-weight-light">
+                    Real-time data per hour
+                  </h1>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="container-fluid">
+            <div className="row">
+              <div className="col-12">
+                <div className="card card-primary card-outline">
+                  <div className="card-header">
+                    <h3 className="card-title">
+                      <label>Select Criteria </label>
+                    </h3>
+                  </div>
+
+                  <div className="card-body">
+                    <div className="row">
+                      {/* //Select Critiria "Model" */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Model</label>
+                          <Select
+                            options={this.state.listModel}
+                            onChange={async (e) => {
+                              await this.setState({ model: e.label });
+                              await this.getProductionline();
+                            }}
+                            // type="text"
+                            // className="form-control"
+                            placeholder="Select Model"
+                          />
+                        </div>
+                      </div>
+
+                      {/* //Select Critiria "Production line" */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Production line</label>
+                          <Select
+                            options={this.state.listProductionline}
+                            onChange={async (e) => {
+                              await this.setState({ productionline: e.label });
+                              await this.getMachine();
+                            }}
+                            // type="text"
+                            // className="form-control"
+                            placeholder="Select Production line"
+                          />
+                        </div>
+                      </div>
+
+                      {/* //Select Critiria "Parameter" */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Parameter</label>
+                          <Select
+                            options={this.state.listParameter}
+                            onChange={async (e) => {
+                              await this.setState({ parameter: e.label });
+                              await this.getMachine();
+                            }}
+                            // type="text"
+                            // className="form-control"
+                            placeholder="Select Parameter"
+                          />
+                        </div>
+                      </div>
+
+                      {/* //Select Critiria "Machine No." */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Machine No.</label>
+                          <Select
+                            options={this.state.listMachine}
+                            onChange={async (e) => {
+                              await this.setState({
+                                machine: e.label,
+                              });
+                            }}
+                            // type="text"
+                            // className="form-control"
+                            placeholder="Select Machine No."
+                          />
+                        </div>
+                      </div>
+
+                      {/* //Select Start Date */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Select Date</label>
+                          <input
+                            value={this.state.selectDate}
+                            onChange={(e) => {
+                              this.setState({ selectDate: e.target.value });
+                            }}
+                            type="date"
+                            className="form-control"
+                            placeholder="Select Start Date"
+                          />
+                        </div>
+                      </div>
+
+                      {/* //Select Start Date */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Start Date</label>
+                          <input
+                            value={this.state.startDate}
+                            onChange={(e) => {
+                              this.setState({ startDate: e.target.value });
+                            }}
+                            type="date"
+                            className="form-control"
+                            placeholder="Select Start Date"
+                          />
+                        </div>
+                      </div>
+
+                      {/* //Select Finish Date */}
+                      <div className="col-md-3">
+                        <div className="form-group">
+                          <label>Finish Date</label>
+                          <input
+                            value={this.state.finishDate}
+                            onChange={(e) => {
+                              this.setState({ finishDate: e.target.value });
+                            }}
+                            type="date"
+                            className="form-control"
+                            placeholder="Select Finish Date"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Submit button */}
+                      
+                        <div className="col-md-3">
+                          <button
+                            onClick={(e) => {
+                              this.doGetData();
+                            }}
+                            type="submit"
+                            className="btn btn-primary"
+                          >
+                            Submit
+                          </button>
+
+                          {/* Reset button */}
+                          <button
+                            onClick={(e) => {
+                              this.resetForm();
+                            }}
+                            type="reset"
+                            className="btn btn-danger"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Chart Area */}
+        <div class="content">
+          <div class="container-fluid">
+            <div className="row">
+              <div className="col-12">
+                <div className="card card-primary card-outline">
+                  {/* Chart Title */}
+                  <div className="card-header">
+                    <h3 className="card-title">
+                      <i className="far fa-chart-bar" />
+                      <label>Xbar Chart</label>
+                    </h3>
+                  </div>
+                  {/* Insert Chart */}
+                  <div className="card-body">
+                    <div className="chart">
+                      <div
+                        id="areaChart"
+                        style={{
+                          minHeight: 300,
+                          height: 400,
+                          maxHeight: 300,
+                          maxWidth: "100%",
+                        }}
+                      >
+                        <Chart
+                          options={{
+                            chart: {
+                              id: "basic-bar",
+                            },
+                            xaxis: {
+                              categories: this.state.xAxis,
+                            },
+
+                            title: {
+                              text: this.state.title,
+                              align: "bottom",
+
+                              style: {
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                fontFamily: undefined,
+                                color: "#263238",
+                              },
+                            },
+                            markers: {
+                              size: [3, 1],
+                            },
+                            stroke: {
+                              width: [5, 5, 4],
+                            },
+                          }}
+                          series={[
+                            {
+                              name: "Average",
+                              type: "line",
+                              data: this.state.yAxis,
+                            },
+                            {
+                              name: "USL",
+                              type: "line",
+                              data: this.state.yAxisUCL,
+                              color: "#ff0000",
+                            },
+                            {
+                              name: "LSL",
+                              type: "line",
+                              data: this.state.yAxisLCL,
+                              color: "#ff0000",
+                            },
+                            {
+                              name: "SL",
+                              type: "line",
+                              data: this.state.yAxisCL,
+                              color: "#33F39C",
+                            },
+                          ]}
+                          type="line"
+                          height="300"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="container-fluid">
+            <div className="card card-primary">
+              <div className="card-header">
+                <h3 className="card-title">
+                  <label>Table</label>
+                </h3>
+              </div>
+
+              <div className="card-body">
+                {/* Insert Table */}
+                <div class="table-responsive p-0">
+                  <table className="table table-bordered table-hover text-nowrap ">
+                    <thead>
+                      <tr>
+                        <th width="100">Time</th>
+                        <th width="100">AVG Cycle time(sec)</th>
+                        <th width="110">Down time(min)</th>
+                        <th width="100">STD</th>
+                        <th width="100">CPK</th>
+                      </tr>
+                    </thead>
+                    <tbody>{this.renderTableRow()}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Chart Area */}
+        <div class="content">
+          <div class="container-fluid">
+            <div className="row">
+              <div className="col-12">
+                <div className="card card-primary card-outline">
+                  {/* Chart Title */}
+                  <div className="card-header">
+                    <h3 className="card-title">
+                      <i className="far fa-chart-bar" />
+                      <label>Xbar Chart</label>
+                    </h3>
+                  </div>
+                  {/* Insert Chart */}
+                  <div className="card-body">
+                    <div className="chart">
+                      <div
+                        id="areaChart"
+                        style={{
+                          minHeight: 300,
+                          height: 400,
+                          maxHeight: 300,
+                          maxWidth: "100%",
+                        }}
+                      >
+                        <Chart
+                          options={{
+                            chart: {
+                              id: "basic-bar",
+                            },
+                            xaxis: {
+                              categories: this.state.xAxisday,
+                            },
+
+                            title: {
+                              text: this.state.titleday,
+                              align: "bottom",
+
+                              style: {
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                fontFamily: undefined,
+                                color: "#263238",
+                              },
+                            },
+                            markers: {
+                              size: [3, 1],
+                            },
+                            stroke: {
+                              width: [5, 5, 4],
+                            },
+                          }}
+                          series={[
+                            {
+                              name: "Average",
+                              type: "line",
+                              data: this.state.yAxisday,
+                            },
+                            {
+                              name: "USL",
+                              type: "line",
+                              data: this.state.yAxisUCLday,
+                              color: "#ff0000",
+                            },
+                            {
+                              name: "LSL",
+                              type: "line",
+                              data: this.state.yAxisLCLday,
+                              color: "#ff0000",
+                            },
+                            {
+                              name: "SL",
+                              type: "line",
+                              data: this.state.yAxisCLday,
+                              color: "#33F39C",
+                            },
+                          ]}
+                          type="line"
+                          height="300"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div class="container-fluid">
+            <div className="card card-primary">
+              <div className="card-header">
+                <h3 className="card-title">
+                  <label>Table</label>
+                </h3>
+              </div>
+
+              <div className="card-body">
+                {/* Insert Table */}
+                <div class="table-responsive p-0">
+                  <table className="table table-bordered table-hover text-nowrap ">
+                    <thead>
+                      <tr>
+                        <th width="100">Date</th>
+                        <th width="100">AVG Cycle time(sec)</th>
+                        <th width="110">Down time(min)</th>
+                        <th width="100">STD</th>
+                        <th width="100">CPK</th>
+                      </tr>
+                    </thead>
+                    <tbody>{this.renderTableRowday()}</tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Insert Logout button */}
+        <div className="card-footer">
+          <button
+            onClick={() => {
+              localStorage.removeItem(key.LOGIN_PASSED);
+              localStorage.removeItem(key.JWT_TOKEN);
+              this.props.history.push("/login");
+            }}
+            className="btn btn-danger"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default ROTOR;

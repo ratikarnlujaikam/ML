@@ -1,0 +1,13 @@
+.header {
+    position: sticky; /* หรือใช้ position: fixed; ตามที่คุณต้องการ */
+    top: 0;
+    z-index: 100; /* เพื่อให้ Header อยู่ข้างหน้าสุด */
+    background-color: #282c34; /* สีพื้นหลังของ Header */
+    color: white; /* สีตัวอักษรของ Header */
+    padding: 10px 0; /* ระยะห่างด้านบนและด้านล่างของ Header */
+    /* ส่วนอื่น ๆ ของการสั่งลำดับตำแหน่ง, ขนาดและอื่น ๆ ตามที่คุณต้องการ */
+  }
+  
+  .content {
+    padding-top: 60px; /* ความสูงของ Header */
+  }

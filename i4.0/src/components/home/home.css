@@ -1,0 +1,43 @@
+/* Home.css */
+.home-content {
+    padding: 20px;
+  }
+  
+  .home-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .date-time-container {
+    margin-top: 50px;
+    text-align: center;
+  }
+  
+  .analog-clock {
+    margin-top: 20px;
+  }
+  
+  .gallery-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 20px;
+  }
+  
+  .breadcrumb-item a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .breadcrumb-item a:hover {
+    text-decoration: underline;
+  }
+  
+  .breadcrumb {
+    background: none;
+    padding: 0;
+    margin-bottom: 0;
+  }
+  

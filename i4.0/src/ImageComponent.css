@@ -1,0 +1,22 @@
+.image-container {
+    text-align: center;
+}
+
+.small-image {
+    max-width: 100%;
+    height: auto; /* รักษาอัตราส่วนของภาพ */
+    border: 2px solid black; /* เพิ่มเส้นขอบด้วย border สีดำขนาด 2px */
+    padding: 10px; /* เพิ่มช่องว่างรอบรูปภาพ */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* เพิ่มเงารอบรูป */
+}
+.countdown {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+
+
+.loading {
+    font-size: 16px;
+    margin-top: 20px;
+}
