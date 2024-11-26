@@ -1,5 +1,5 @@
 git init
-git remote add origin https://github.com/ratikarnlujaikam/ML_python.git
+git remote add origin https://github.com/ratikarnlujaikam/ML.git
 
 git add .
 git commit -m "Initial commit"
